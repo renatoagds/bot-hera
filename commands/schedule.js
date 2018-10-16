@@ -1,19 +1,25 @@
+/* eslint-disable */
 const puppeteer = require('puppeteer');
+const cron = require('node-cron');
 const {getTableInfo, getTableRows, getTableCalendar, scheduleAnTime} = require('./utils');
 const heraMainUrl = 'http://csys.herabrasil.com/login.asp';
 const scheduleUrl = 'http://csys.herabrasil.com/ver_agenda.asp';
 
-module.exports = (password, cli) => puppeteer.launch().then(async browser => {
+const schedule = (password, cli) => puppeteer.launch().then(async browser => {
   const silent = cli.silent;
   const local = cli.local || 'lt';
   const log = msg => !silent ? console.log(msg) : null;
+  const exit = status => {
+    if (status === 0) process.exit();
+    if (cli.cron && status === 1) cron.schedule('*/5 * * * *', schedule(password, cli));
+  };
 
   try {
     // init a new page
     const page = await browser.newPage();
 
     // go to main URL and authenticate
-    log(`Navegando para a página da Hera...`);
+    log(`Navegando para a página da Hera...`)
     await page.goto(heraMainUrl);
 
     // auth
@@ -37,7 +43,7 @@ module.exports = (password, cli) => puppeteer.launch().then(async browser => {
         async rows => {
           if (!['l4b', 'lt'].includes(local)) {
             console.log(`Erro: Especifique um local entre l4b e lt`);
-            process.exit(1);
+            exit(1);
           } else {
             const basedText = local === 'lt' ? 'Loggi Tower' : 'L4B';
             const filtered = rows.filter(row => row.name.includes(basedText));
@@ -55,7 +61,7 @@ module.exports = (password, cli) => puppeteer.launch().then(async browser => {
                   log(`Reservando o horário ${available.time} para o dia ${service.date} na agenda ${service.name}...`);
                   await page.goto(available.link);
                   await browser.close();
-                  process.exit(0);
+                  exit(0);
                 } else {
                   console.log(`Erro: Não existem horários disponíveis para a agenda ${service.name}`);
                 }
@@ -64,20 +70,22 @@ module.exports = (password, cli) => puppeteer.launch().then(async browser => {
 
             if (filtered.length > 0) {
               for (let item of filtered) await pickAnTime(item);
-              process.exit(0);
+              exit(1);
             } else {
               console.log('Erro: Nenhum calendário disponível');
-              process.exit(1);
+              exit(1);
             }
           }
         }
       );
     } else {
       console.log(`Erro: Nenhum calendário encontrado`);
-      process.exit(1);
+      exit(1);
     }
   } catch (e)  {
     console.log(`Erro: ${e.message}`);
-    process.exit(1);
+    exit(1);
   }
 });
+
+module.exports = schedule;
