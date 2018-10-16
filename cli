@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+const program = require('commander');
+const schedule = require('./commands/schedule');
+program.version(require('./package.json').version);
+
+program.command('agendar <password>')
+  .option('-s, --silent')
+  .option('-l, --local <place>', 'Lugar para reservar a agenda (lt ou l4b)')
+  .option('-t, --time <a>..<b>', 'Range de tempo para agendar', val => val.split('..'))
+  .action(schedule);
+
+program.parse(process.argv);
+

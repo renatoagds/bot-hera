@@ -1,0 +1,13 @@
+{
+  "name": "bot-hera",
+  "version": "1.0.0",
+  "description": "bot para marcar massagem",
+  "main": "cli.js",
+  "author": "renatoagds",
+  "license": "MIT",
+  "dependencies": {
+    "chromeless": "1.5.2",
+    "commander": "2.19.0",
+    "puppeteer": "1.9.0"
+  }
+}
