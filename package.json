@@ -6,9 +6,7 @@
   "author": "renatoagds",
   "license": "MIT",
   "dependencies": {
-    "chromeless": "1.5.2",
     "commander": "2.19.0",
-    "node-cron": "2.0.3",
     "puppeteer": "1.9.0"
   }
 }
