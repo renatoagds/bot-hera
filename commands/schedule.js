@@ -1,17 +1,21 @@
 /* eslint-disable */
 const puppeteer = require('puppeteer');
-const cron = require('node-cron');
 const {getTableInfo, getTableRows, getTableCalendar, scheduleAnTime} = require('./utils');
 const heraMainUrl = 'http://csys.herabrasil.com/login.asp';
 const scheduleUrl = 'http://csys.herabrasil.com/ver_agenda.asp';
+
+let retry = 0;
+const maxRetry = 24;
 
 const schedule = (password, cli) => puppeteer.launch().then(async browser => {
   const silent = cli.silent;
   const local = cli.local || 'lt';
   const log = msg => !silent ? console.log(msg) : null;
-  const exit = status => {
-    if (status === 0) process.exit();
-    if (cli.cron && status === 1) cron.schedule('*/5 * * * *', schedule(password, cli));
+  const exit = async status => {
+    retry++;
+    await browser.close();
+    if (status === 0 || retry > maxRetry) process.exit(0);
+    else if (cli.cron && status === 1 && retry <= maxRetry) setTimeout(() => schedule(password, cli), 300000);
   };
 
   try {
