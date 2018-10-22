@@ -20,11 +20,11 @@ const getTableInfo = rows => rows.map(
   async row => {
     const columns = await getColumns(row);
     return {
-      id: columns[0],
-      open: columns[1],
-      date: columns[2],
-      name: columns[3],
-      link: columns[4]
+      id: columns[0] || '',
+      open: columns[1] || '',
+      date: columns[2] || '',
+      name: columns[3] || '',
+      link: columns[4] || ''
     };
   }
 );

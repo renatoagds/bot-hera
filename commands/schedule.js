@@ -10,7 +10,7 @@ const maxRetry = 24;
 const schedule = (password, cli) => puppeteer.launch().then(async browser => {
   const silent = cli.silent;
   const local = cli.local || 'lt';
-  const log = msg => !silent ? console.log(msg) : null;
+  const log = msg => !silent ? console.log(`[${new Date().toLocaleString()}] - ${msg}`) : null;
   const exit = async status => {
     retry++;
     await browser.close();
